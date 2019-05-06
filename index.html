@@ -1,0 +1,186 @@
+<html class="container">
+	<head>
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
+		<style>
+			.cor-vermelha{
+				color: red;	
+			}		
+		</style>
+	</head>
+	<body>
+		<h1>Teste de Grubbs</h1>
+		<b>Água e Esgoto |	01/2013 a 12/2013 |	02.001.040 - APS MACEIÓ-JATIÚCA</b>
+		<table class="table"> 
+			<tbody id="lista">
+				<tr width="50">
+					
+					<th> Valores </th>
+					<td class="numeros">323.20</td>
+					<td class="numeros">323.20</td>
+					<td class="numeros">323.20</td>
+					<td class="numeros">1315.84</td>
+					<td class="numeros">405.92</td>
+					<td class="numeros">405.92</td>
+					<td class="numeros">323.20</td>
+					<td class="numeros">323.20</td>
+					<td class="numeros">902.24</td>
+					<td class="numeros">902.24</td>
+					<td class="numeros">323.20</td>
+					<td class="numeros">984.96</td>
+					<td class="numeros">984.96</td>
+					<td class="numeros">1346.32</td>
+					<td class="numeros">1346.32</td>
+					<td class="numeros">384.80</td>
+					<td class="numeros">2048.00</td>
+					<td class="numeros">680.48</td>
+					<td class="numeros">384.80</td>
+					<td class="numeros">877.60</td>
+					<td class="numeros">483.36</td>
+					<td class="numeros">680.48</td>
+					<td class="numeros">384.80</td>
+					<td class="numeros">384.80</td>
+					<td class="numeros">384.80</td>
+					<td class="numeros">384.80</td>
+					<td class="numeros">384.80</td>
+					<td class="numeros">384.80</td>
+					<td class="numeros">384.80</td>
+					<td class="numeros">384.80</td>
+					<td class="numeros">424.00</td>
+					<td class="numeros">424.00</td>
+					<td class="numeros">383.94</td>
+					<td class="numeros">424.00</td>
+					<td class="numeros">424.00</td>
+				</tr>
+				<tr width="50" id="resultado">
+					<th> Resultados </th> 
+				</tr>
+			</tbody>
+		</table>
+		<i>quantidade de itens: 35 <br>		
+		para 0.1: 2,63	<br>	
+		para 0,05: 2,812 <br>		
+		para 0,025: 2,978 <br>		
+		para 0,01: 3,178 <br>	
+		para 0,005: 3,316</i>
+		<h4><span style="color:red">média: </span><i id="resultMedia">ddd</i></h4>
+		<h4><span style="color:red">desvio padrão: </span><i id="desvio">ddd</i></h4>
+
+		<div>
+			<canvas id="myChart" width="1600" height="900"></canvas>
+    
+		</div>
+
+	</body>
+	<script>
+		//------------------DSDSA-------------------------------
+
+		let num = document.querySelectorAll(".numeros");
+		let b =  document.querySelector('#resultMedia');
+		let c =  document.querySelector('#desvio');
+
+		
+		
+		let arr = new Array();
+		for(var i=0; i<num.length; i++){
+			arr[i]=parseFloat(num[i].textContent);			
+
+		}
+		
+		
+		//let eixoXx = ['01/11', '02/11', '03/11', '04/11', '05/11', '01/11', '02/11', '03/11', '04/11', '05/11', '01/11', '02/11', '03/11', '04/11', '05/11', '01/11', '02/11', '03/11', '04/11', '05/11', '01/11', '02/11', '03/11', '04/11', '05/11', '01/11', '02/11', '03/11', '04/11', '05/11', '01/11', '02/11', '03/11', '04/11', '05/11'];
+		let eixoX = new Array();
+		for(let i=0, cont=11, sub=0; i<num.length; i++){
+			eixoX[i] = (i+1-sub)+'/'+cont;	
+			if((i+1)%12==0){
+				cont++;
+				sub+=12;
+			}
+			
+		}
+		
+		console.log("X "+eixoX)
+		
+		let media = ((arr.reduce((a, b) => a + b,0))/arr.length).toFixed(2);
+		//media = media.toFixed(2);
+		b.textContent = media;
+		c.textContent = desvioP(); 		
+		console.log("aray: "+desvioP())
+
+		let sup = new Array();
+		for(var i=0; i<num.length; i++){
+			let m = parseFloat(media);
+			let p =parseFloat(desvioP());
+			console.log("aqui: "+typeof m+" "+typeof p);
+			let a = parseFloat(((2.812*p)+m));	console.log("sup: "+a);	
+			sup[i] = a.toFixed(2) ;	
+			
+
+		}
+		console.log("sup: "+sup);
+		
+		console.log("g: "+aberranteMet());
+		let tabela = document.querySelector("#lista");
+		//tabela.classList.add('cor-vermelha');
+		tabela.appendChild(montaTr(arr, aberranteMet(), 'cor-vermelha'));	
+		
+
+		//-------------------------------------GRÁFICO-------------------------------------------------------
+
+
+		var ctx = document.getElementById("myChart");
+		var myChart = new Chart(ctx, {
+ 		 	type: 'line',
+ 			 data: {
+  		  	labels: eixoX,
+  		  	datasets: [
+     		 			{ 
+     		  	 			data: arr,
+						label: "Arr",
+						borderColor: "#3e95cd",
+  						fill: false
+    		  			},
+					{ 
+     		  	 			data: sup,
+						label: "Limite Superior",
+						borderColor: "#555",
+  						fill: false
+    		  			}
+    				]
+  			}
+		});
+
+
+			
+		//---------------------FUNÇÕES---------------------------------------------
+				
+		function montaTr(array, aberrante, classe){
+			let criaTr = document.querySelector('#resultado');
+			array.map( e => Math.abs(e-media)/desvioP() == aberrante ? criaTr.appendChild(montaTd(aberrante, classe)) : criaTr.appendChild(montaTd(Math.abs(e-media)/desvioP(), null)) );
+			return criaTr;
+		}
+
+		function montaTd(valor, classe){
+			let td = document.createElement("td");
+			td.textContent = valor.toFixed(3);
+			td.classList.add(classe);
+			return td;
+		}		
+		
+		function desvioP(){
+			console.log("media: "+media);
+			let sumNumerador = arr.reduce((acm, ele) => acm + Math.pow((ele-media),2),0)
+			return (Math.pow(sumNumerador/num.length, 1/2)).toFixed(2);
+		}
+
+		function aberranteMet(){
+			let aberrante = 0;
+			arr.map(e =>{let g = Math.abs(e-media)/desvioP(); g > 2.812 ? aberrante = g : null});
+			return aberrante;
+		}
+		
+		//-------------------------------------------------------------------------------------
+		
+	</script>
+</html
